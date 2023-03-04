@@ -33,81 +33,7 @@ void AIS_SIM7020E_API::disablePSM(){
   atcmd.powerSavingMode(0);
 }
 
-/****************************************/
-/**          Send UDP Message          **/
-/****************************************/
-/*
-  - sendMsgHEX
-      - Send messege in HEX string. Limit of is 1024.
-  - sendMsgSTR
-      - Send messege in ASCII string. Limit of is 512.
-  - send_msg
-      - Send messege to the server.
-*/
-void AIS_SIM7020E_API::sendStr(String address, String port, String payload){
-  if (payload.length() > 512){
-    Serial.println(F("Warning payload size exceed the limit. [Limit of String is 512]"));
-  }
-  else{
-    atcmd.sendData(address, port, payload.length(), payload);
-  }
-}
 
-void AIS_SIM7020E_API::sendMsgHEX(String address,String desport,String payload){
-  if(payload.length()>1024){
-    Serial.println(F("Warning payload size exceed the limit. [Limit of HEX is 1024]"));
-  }
-  else send_msg(address,desport,payload.length(),payload);
-  
-}
-
-void AIS_SIM7020E_API::sendMsgSTR(String address,String desport,String payload){
-  if(payload.length()>512){
-    Serial.println(F("Warning payload size exceed the limit. [Limit of String is 512]"));
-  }
-  else send_msg(address,desport,0,"\""+payload+"\"");
-}
-
-void AIS_SIM7020E_API::send_msg(String address,String desport,unsigned int len,String payload){
-  Serial.println(F("-------------------------------"));
-    Serial.print(F("# Sending Data : "));
-    Serial.println(payload);
-    Serial.print(F("# IP : "));
-    Serial.println(address);
-    Serial.print(F("# Port : "));
-    Serial.println(desport);
-
-    atcmd._Serial_print(address,desport,len);
-    atcmd._Serial_print(payload);
-    atcmd._Serial_println();
-}
-
-/****************************************/
-/**         Receive UDP Message        **/
-/****************************************/
-
-void AIS_SIM7020E_API::waitResponse(String &retdata,String server){
-    atcmd.waitResponse(retdata,server);   
-}
-
-String AIS_SIM7020E_API::messagePayload(){
-  String output = "";
-  String defaultPayload = "#860186054706334#MT700#0000#HT#1#";
-  String backupVoltage = "34";
-  String messageType = "$GPRMC";
-  String utcTime = "141208.00";
-  String status = "A";
-  String latitude = "2101.7991";
-  String nsIndicator = "N";
-  String longitude = "10546.9066";
-  String ewIndicator = "E";
-  String speedOverGround = "";
-  String courseOverGround = "";
-  String date = "050223";
-  String other = ",,A*5D##";
-  output = defaultPayload + backupVoltage + messageType + "," + utcTime + "," + status + "," + latitude + "," + nsIndicator + "," + longitude + "," + ewIndicator + "," + speedOverGround + "," + courseOverGround + "," + date + "," + other;
-  return output;
-}
 /****************************************/
 /**          Get Parameter Value       **/
 /****************************************/
@@ -311,11 +237,11 @@ bool AIS_SIM7020E_API::publish(String topic, String payload, unsigned int pubQoS
     return false;
   }
 
-  Serial.println(F("-------------------------------"));
-  Serial.print(F("# Publish : "));
-  Serial.println(payload);
-  Serial.print(F("# Topic   : "));
-  Serial.println(topic);
+  // Serial.println(F("-------------------------------"));
+  // Serial.print(F("# Publish : "));
+  // Serial.println(payload);
+  // Serial.print(F("# Topic   : "));
+  // Serial.println(topic);
 
   atcmd.publish(topic, payload, pubQoS, pubRetained, pubDup);
   while(1){

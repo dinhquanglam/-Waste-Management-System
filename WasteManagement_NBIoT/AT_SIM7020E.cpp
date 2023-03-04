@@ -1084,47 +1084,12 @@ bool AT_SIM7020E::checkPSMmode(){
   return status;
 }
 
-/****************************************/
-/**          Send UDP Message          **/
-/****************************************/
-/*
- * Send data to remote via socket with datamode
- */
-void AT_SIM7020E::sendData(String address, String port, unsigned int len, String payload){
-  Serial.println(F("-------------------------------"));
-  Serial.print(F("# Sending Data : "));
-  Serial.println(payload);
-  Serial.print(F("# IP : "));
-  Serial.println(address);
-  Serial.print(F("# Port : "));
-  Serial.println(port);
-  
-  String lenString = String(len);
-  _Serial->print(F("AT+CSODSEND=0,"));
-  _Serial->println(lenString);
-  delay(500);
 
-  _Serial->println(payload);
-}
 
-// Send AT command to send UDP message
-void AT_SIM7020E::_Serial_print(String address, String port, unsigned int len){
-  String lenString = String(len);
-  if(debug) Serial.println("Send to "+address+","+port);
-  _Serial->print(F("AT+CSOSEND=0,"));
-  _Serial->print(len);
-  _Serial->print(F(","));
-}
 
-// Send message type String
-void AT_SIM7020E::_Serial_print(String msg){
-  _Serial->print(msg);
-}
 
-// Send message type unsigned int
-void AT_SIM7020E::_Serial_print(unsigned int msg){
-  _Serial->print(msg);
-}
+
+
 
 // Send message type char *
 void AT_SIM7020E::_Serial_print(char *msg){
@@ -1136,63 +1101,8 @@ void AT_SIM7020E::_Serial_println(){
   _Serial->println();
 }
 
-/****************************************/
-/**        Receive UDP Message         **/
-/****************************************/
-// Receive incoming message : +CSONMI: <socket_id>,<data_len>,<data>
-void AT_SIM7020E:: waitResponse(String &retdata,String server){ 
 
-  if(_Serial->available()){
-    char data=(char)_Serial->read();
-    if(data=='\n' || data=='\r'){
-      if(k>1){
-        end=true;
-        k=0;
-      }
-      k++;
-    }
-    else{
-      dataInput+=data;
-    }
-  }
-  if (end){
-    manageResponse(retdata,server);   
-  }
-  
-}
 
-// Split data from incoming message
-void AT_SIM7020E:: manageResponse(String &retdata,String server){ 
-  if(end){  
-    end=false;
-
-    if(dataInput.indexOf(F("+CSONMI:"))!=-1){
-      String left_buffer="";
-
-      //pack data to char array
-      char buf[dataInput.length()+1];
-      memset(buf,'\0',dataInput.length());
-      dataInput.toCharArray(buf, sizeof(buf));
-
-      char *p = buf;
-      char *str;
-      byte i=0;
-      byte j=0;
-      while ((str = strtok_r(p, ",", &p)) != NULL){   // delimiter is the comma
-        j=2;  // number of comma
-
-        if(i==j){
-          retdata=str;
-        }
-        if(i==j+1){
-          left_buffer=str;
-        }
-        i++;
-      }              
-        dataInput=F("");
-    }          
-  }
-}
 
 /****************************************/
 /**          Utility                   **/

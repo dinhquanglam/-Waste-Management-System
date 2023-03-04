@@ -6,16 +6,18 @@
 // 13 -> 7020E_TX
 #include <Servo.h>
 #include "AIS_SIM7020E_API.h"
+#include <ArduinoJson.h>
+
 String data_return;
 String address    = "171.244.173.204";               //Your IPaddress or mqtt server url
 String serverPort = "1884";         
   //Your server port
-String clientID = String(random(0xffff), HEX);
+String clientID = "lamdq3-abcsh2";
 
 // String topic      = "WasteSystem_NBIoT";               //Your topic     < 128 characters
 // String payload    = "HelloWorld!";    //Your payload   < 500 characters
-String username   = "";               //username for mqtt server, username <= 100 characters
-String password   = "";               //password for mqtt server, password <= 100 characters 
+String username   = "admin";               //username for mqtt server, username <= 100 characters
+String password   = "admin";               //password for mqtt server, password <= 100 characters 
 unsigned int subQoS       = 0;
 unsigned int pubQoS       = 0;
 unsigned int pubRetained  = 0;
@@ -38,7 +40,7 @@ int capacity;
 float deepOfWaste = 20;
 //////////
 
-#define MSG_BUFFER_SIZE (100)
+#define MSG_BUFFER_SIZE (10)
 
 // waste1 Hoa Phuong
 String topicStt1 = "NBIoT/waste1/status";
@@ -68,7 +70,9 @@ void setupMQTT(){
   if(!nb.connectMQTT(address,serverPort,clientID,username,password)){ 
      Serial.println("\nconnectMQTT");
   }
-    nb.subscribe("NBIoT",subQoS);
+    nb.subscribe(topicCtrl1,subQoS);   
+    // nb.subscribe(topicStt1,subQoS);
+
 //  nb.unsubscribe(topic); 
 }
 void connectStatus(){
@@ -88,6 +92,52 @@ void callback(String &topic,String &payload, String &QoS,String &retained){
   if(retained.indexOf(F("1"))!=-1){
     Serial.println("# Retained = "+retained);
   }
+
+  // // get state from broker
+  // for (int i = 0; i < 200; i++) {
+  //   Serial.print((char)payload[i]);  
+  // }
+  //   StaticJsonDocument<200> doc;
+  //   // Deserialize the JSON document
+  //   DeserializationError error = deserializeJson(doc, payload);
+  //   // Test if parsing succeeds.
+  // if (error) {
+  //   Serial.print(F("deserializeJson() failed: "));
+  //   Serial.println(error.f_str());
+  //   return;
+  // }
+  //   const bool state = doc["state"];
+  //   Serial.println();
+  //   Serial.println(state);
+  //   if(state == false){
+
+  //   // close the pin
+
+  //   myservo.write(0); // Start turning clockwise
+  //   delay(TURN_TIME); // Go on turning for the right duration
+  //   myservo.write(90);// Stop turning
+
+
+
+  //     for(int i=0; i <6; i++){
+  //         stateChange[i] = close[i]; 
+  //     }      
+  //     Serial.println("close");
+  //   }else{
+  //   // open the pin
+  //       myservo.write(180); // Start turning anti-clockwise
+  //   delay(TURN_TIME); // Go on turning for the right duration
+  //   myservo.write(90);// Stop turning
+
+
+
+  //       for(int i=0; i <6; i++){
+  //         stateChange[i] = open[i];
+  //       }
+  //       Serial.println("open");
+  //     }  
+  // Serial.println();
+  // Serial.println("-----------------------");  
 }
 void publish(){
     stateAssign(state1);
@@ -95,7 +145,8 @@ void publish(){
     // publish
   if (currentMillis - previousMillis >= interval){      
       connectStatus();
-      snprintf (waste1, MSG_BUFFER_SIZE," { \"latitude\": \"%s\",\"longtitude\": \"%s\",  \"capacity\": \"%d\", \"state\": \"%s\" } " ,lat1,long1,capacity, state1);
+      snprintf (waste1, MSG_BUFFER_SIZE," { \"latitude\": \"%f\",\"longtitude\": \"%f\",  \"capacity\": \"%d\", \"state\": \"%s\" } " ,lat1,long1,capacity, state1);
+      
       nb.publish(topicStt1,waste1,false,true);
       previousMillis = currentMillis; 
   }
@@ -119,12 +170,7 @@ void wasteBinData(){
   else if (distance > deepOfWaste && distance < 560){
     distance = deepOfWaste;
   }
-  Serial.print("distance: ");
-  Serial.println(distance);
   capacity = 100 - (distance/deepOfWaste)*100;
-  Serial.print("capacity: ");
-  Serial.println(capacity);
-  delay(500);
 }
 void stateAssign(char *state){
   for(int i=0; i <7; i++){
