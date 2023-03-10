@@ -6,12 +6,13 @@
 // 13 -> 7020E_TX
 #include <Servo.h>
 #include "AIS_SIM7020E_API.h"
+#include <ArduinoJson.h>
 
 String data_return;
 String address    = "171.244.173.204";               //Your IPaddress or mqtt server url
 String serverPort = "1884";         
       //Your server port
-String clientID   = "hello131-cf";               //Your client id < 120 characters
+String clientID   = "hello131-vg76f";               //Your client id < 120 characters
 
 String username   = "admin";               //username for mqtt server, username <= 100 characters
 String password   = "admin";               //password for mqtt server, password <= 100 characters 
@@ -62,10 +63,12 @@ void setup() {
   setupMQTT();
   nb.setCallback(callback); 
   previousMillis = millis(); 
-  //ultrasonic
+  // ultrasonic
   pinMode(trigPin,OUTPUT);   
   pinMode(echoPin,INPUT);  
-}
+  // Servo motor
+  myservo.attach(servoPin);  
+  }
 
 void setupMQTT(){
   if(!nb.connectMQTT(address,serverPort,clientID,username,password)){ 
@@ -90,6 +93,27 @@ void callback(String &topic,String &payload, String &QoS,String &retained){
   Serial.println("# QoS = "+QoS);
   if(retained.indexOf(F("1"))!=-1){
     Serial.println("# Retained = "+retained);
+  }
+ // Convert hexadecimal string to ASCII
+  char ascii_string[(payload.length() / 2) + 1];
+  for (int i = 0; i < payload.length() / 2; i++) {
+    ascii_string[i] = (char) strtol(payload.substring(i * 2, i * 2 + 2).c_str(), NULL, 16);
+  }
+  ascii_string[payload.length() / 2] = '\0';
+  
+  // Parse JSON using ArduinoJson library
+  StaticJsonDocument<64> doc;
+  deserializeJson(doc, ascii_string);
+
+  // Extract state value
+  const bool state = doc["state"];
+  Serial.println(state);
+  
+  // Control servo motor
+  if (state) {
+    Serial.println("open");
+  } else {
+    Serial.println("close");
   }
 }
 
