@@ -20,7 +20,7 @@ function creatMarker(loc){
             const infor = document.getElementById("infor");
             infor.style.display = "block";
             document.getElementById("name").innerHTML = loc.name;
-            document.getElementById("cap").innerHTML = loc.fullness;
+            document.getElementById("cap").innerHTML = loc.fullness.toFixed(2);
             document.getElementById("nameInput").value = loc.name;
             document.getElementById("stateInput").value = loc.state;
             document.getElementById("capInput").value = loc.fullness;
@@ -174,7 +174,7 @@ $(document).ready(async function(){
         
         if(infor.style.display === "block" && document.getElementById("idInput").value === JSON.stringify(msg.id._id)){
             if(msg.data.fullness != null){
-                document.getElementById("cap").innerHTML = Number(msg.data.fullness);
+                document.getElementById("cap").innerHTML = Number(msg.data.fullness).toFixed(2);
                 document.getElementById("capInput").value = Number(msg.data.fullness);
             }
             if(msg.data.state != null){

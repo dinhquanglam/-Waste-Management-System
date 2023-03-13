@@ -13,13 +13,15 @@ router.get('/', async (req, res) =>{
         console.log(req.session.userid);
         var car = await carController.getByCollectorId(req.session.userid.toString());
         var path = car.routing;
+        path.splice(0, 1);
         res.render('main_views/homeC', {
             script: "homeC.js",
             style: "homeC.css",
             accType: "collector",
             list: encodeURIComponent(JSON.stringify(listBin)),
             path: encodeURIComponent(JSON.stringify(path)),
-            position: encodeURIComponent(JSON.stringify(car.position))  
+            position: encodeURIComponent(JSON.stringify(car.position)),
+            car_id: encodeURIComponent(JSON.stringify(car._id))
         });
     }
     else{

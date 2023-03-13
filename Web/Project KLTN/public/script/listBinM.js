@@ -4,7 +4,7 @@ function createPenTimeChart(arr){
     var colors = [];
     arr.forEach(e => {
         xVal.push(e.date);
-        yVal.push(e.time);
+        yVal.push((e.time/60).toFixed(2));
         if(e.time > 10){
             colors.push("red");
         }
@@ -44,7 +44,7 @@ function createPieChart(allList, time){
         e.penalty_time.forEach(el => {
             total += el.time;
         });
-        value.push(total);
+        value.push((total/60).toFixed(2));
         var randomColor = "#" + Math.floor(Math.random()*16777215).toString(16);
         color.push(randomColor);
         totalVal += total;
@@ -67,7 +67,7 @@ function createPieChart(allList, time){
                 easing: "easeOutQuart",
                 onComplete: function () {
                     var ctx = this.chart.ctx;
-                    ctx.font = Chart.helpers.fontString(Chart.defaults.global.defaultFontFamily, 'normal', Chart.defaults.global.defaultFontFamily);
+                    ctx.font = "bold 1em Montserrat";
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'bottom';
                     console.log(this.data.datasets);
@@ -84,7 +84,7 @@ function createPieChart(allList, time){
                             ctx.fillStyle = '#fff';
                             var percent = String(Math.round(dataset.data[i]/total*100)) + "%"; 
                             if(dataset.data[i] != 0 && dataset._meta[time].data[i].hidden != true) {
-                                ctx.fillText(dataset.data[i], model.x + x, model.y + y);
+                                ctx.fillText(dataset.data[i] + " minute", model.x + x, model.y + y);
                                 ctx.fillText(percent, model.x + x, model.y + y + 15);
                             }
                         }

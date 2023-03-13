@@ -26,10 +26,10 @@
 </div>
 <script>
     
-    
+    var car = decodeURIComponent("{{{car_id}}}");
+    car = JSON.parse(car);
     var loc = decodeURIComponent("{{{list}}}");
     loc = JSON.parse(loc);
-    console.log(loc);
     var path = decodeURIComponent("{{{path}}}");
     path = JSON.parse(path);
     var pos = decodeURIComponent("{{{position}}}");

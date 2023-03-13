@@ -4,7 +4,7 @@ function createChart(opDis){
     var colors = [];
     opDis.forEach(e => {
         xVal.push(e.date);
-        yVal.push(e.distance);
+        yVal.push(e.distance.toFixed(2));
         if(e.distance > 10){
             colors.push("red");
         }

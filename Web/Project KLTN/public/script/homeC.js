@@ -20,7 +20,7 @@ function creatMarker(loc){
             const infor = document.getElementById("infor");
             infor.style.display = "block";
             document.getElementById("name").innerHTML = loc.name;
-            document.getElementById("cap").innerHTML = loc.fullness;
+            document.getElementById("cap").innerHTML = loc.fullness.toFixed(2);
             document.getElementById("nameInput").value = loc.name;
             document.getElementById("stateInput").value = loc.state;
             document.getElementById("capInput").value = loc.fullness;
@@ -135,7 +135,7 @@ $(document).ready(async function(){
         markerPos.openPopup();
     }, 1000);
     pathLatLng = convertLatLng(path);
-    console.log(path);
+    console.log(pathLatLng[0]);
     var route = L.Routing.control({
         show: false,
         draggableWaypoints: false,
@@ -145,12 +145,6 @@ $(document).ready(async function(){
         createMarker: function(i, start, n){
             var marker = creatMarker(path[i]);
             if(i == 0){
-                marker = marker.bindPopup("Start point");
-                setTimeout(() => {
-                marker.openPopup();
-                }, 1000);
-            }
-            else if(i == 1){
                 marker = marker.bindPopup("Next point");
                 setTimeout(() => {
                 marker.openPopup();
@@ -160,8 +154,21 @@ $(document).ready(async function(){
         },
 
     }).addTo(map);
+    var nextRoute = L.Routing.control({
+        show: false,
+        draggableWaypoints: false,
+        lineOptions: {
+            styles: [{color: 'red', opacity: 1, weight: 2}]
+        },
+        createMarker: function(i, start, n){
+            return null;
+        }
+
+    }).addTo(map);
     route.setWaypoints(pathLatLng);
-    
+    if(path.length != 0){
+        nextRoute.setWaypoints([{lat: pos.latitude, lng: pos.longitude}, pathLatLng[0]]);
+    }
     loc.forEach(function(lc){
         creatMarker(lc).addTo(map);
     });
@@ -188,7 +195,7 @@ $(document).ready(async function(){
         
         if(infor.style.display === "block" && document.getElementById("idInput").value === JSON.stringify(msg.id._id)){
             if(msg.data.fullness != null){
-                document.getElementById("cap").innerHTML = Number(msg.data.fullness);
+                document.getElementById("cap").innerHTML = Number(msg.data.fullness).toFixed(2);
                 document.getElementById("capInput").value = Number(msg.data.fullness);
             }
             if(msg.data.state != null){
@@ -210,18 +217,46 @@ $(document).ready(async function(){
     });
 
     socket.on('car change', function(msg){
-        path = msg.data.route;
-        map.eachLayer(function(layer){
-            if(layer._latlng != null){
-                map.removeLayer(layer);
+        if(msg.data.id === car){
+            console.log("Path change");
+            path = msg.data.route;
+            map.eachLayer(function(layer){
+                if(layer._latlng != null){
+                    map.removeLayer(layer);
+                }
+            });
+            var pathLatLng = convertLatLng(path);
+            if(path.length != 0){
+                nextRoute.setWaypoints([{lat: pos.latitude, lng: pos.longitude}, pathLatLng[0]]);
             }
-        });
-        var pathLatLng = convertLatLng(path);
-        route.setWaypoints(pathLatLng);
-        
-        loc.forEach(function(lc){
-            creatMarker(lc).addTo(map);
-        });
+            else{
+                nextRoute.setWaypoints([]);
+            }
+            route.setWaypoints(pathLatLng);
+            loc.forEach(function(lc){
+                creatMarker(lc).addTo(map);
+            });
+            markerPos = L.marker([pos.latitude, pos.longitude]);
+            markerPos.bindPopup("Your position");
+            markerPos.addTo(map);
+            setTimeout(() => {
+                markerPos.openPopup();
+            }, 1000);
+        }
+    });
+
+    socket.on('position change', function(msg){
+        if(msg.data.id === car){
+            console.log("Position change");
+            pos = {latitude: msg.data.position.latitude, longitude: msg.data.position.longitude};
+            map.removeLayer(markerPos);
+            markerPos = L.marker([msg.data.position.latitude, msg.data.position.longitude]);
+            markerPos.bindPopup("Your position");
+            markerPos.addTo(map);
+            if(path.length != 0){
+                nextRoute.setWaypoints([{lat: msg.data.position.latitude, lng: msg.data.position.longitude}, pathLatLng[0]]);
+            }
+        }
     });
 
     // Track current location

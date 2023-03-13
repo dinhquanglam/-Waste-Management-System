@@ -197,11 +197,25 @@ wasteStream.on('change', async (next) =>{
 
 carStream.on('change', async (next) =>{
     if(next.updateDescription.updatedFields.routing != null){
+        var route = next.updateDescription.updatedFields.routing;
+        route.splice(0, 1);
         var dataChange = {
-            id: JSON.stringify(next.documentKey._id),
-            route: next.updateDescription.updatedFields.routing 
+            id: next.documentKey._id,
+            route: route 
         }
         io.emit('car change', {
+            data: dataChange
+        });
+    }
+    else if(next.updateDescription.updatedFields['position.latitude'] != null || next.updateDescription.updatedFields['position.longitude'] != null){
+        var dataChange = {
+            id: next.documentKey._id,
+            position: {
+                latitude: next.updateDescription.updatedFields['position.latitude'],
+                longitude: next.updateDescription.updatedFields['position.longitude']
+            }
+        }
+        io.emit('position change', {
             data: dataChange
         });
     }
