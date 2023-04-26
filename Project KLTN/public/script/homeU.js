@@ -30,6 +30,44 @@ function creatMarker(loc){
     return marker;
 }
 
+function distanceBetween2Node(start, dest){
+    if ((start.latitude == dest.latitude) && (start.longitude == dest.longitude)) {
+        return 0;
+    }
+    else {
+        var radlat1 = Math.PI * start.latitude/180;
+        var radlat2 = Math.PI * dest.latitude/180;
+        var theta = start.longitude-dest.longitude;
+        var radtheta = Math.PI * theta/180;
+        var dist = Math.sin(radlat1) * Math.sin(radlat2) + Math.cos(radlat1) * Math.cos(radlat2) * Math.cos(radtheta);
+        if (dist > 1) {
+            dist = 1;
+        }
+        dist = Math.acos(dist);
+        dist = dist * 180/Math.PI;
+        dist = dist * 60 * 1.1515;
+        dist = dist * 1.609344
+        return dist;
+    }
+}
+
+function findNearest(loc, yLat, yLng){
+    var yourLoc = {
+        latitude: yLat,
+        longitude: yLng
+    };
+    var destLoc = null;
+    var minDist = Infinity;
+    loc.forEach(function(e){
+        var temp = distanceBetween2Node(yourLoc, e);
+        if(temp < minDist && e.fullness < 70){
+            destLoc = e;
+            minDist = temp;
+        }
+    });
+    return destLoc;
+}
+
 var LeafIcon = L.Icon.extend({
     options: {
         iconSize:     [38, 40],
@@ -81,6 +119,24 @@ $(document).ready(async function(){
     loc.forEach(function(lc){
         creatMarker(lc).addTo(map);
     });
+    var route = L.Routing.control({
+        show: false,
+        draggableWaypoints: false,
+        lineOptions: {
+            styles: [{color: 'blue', opacity: 1, weight: 2}]
+        },
+        createMarker: function(i, start, n){
+            return null;
+        }
+    }).addTo(map);
+
+    document.getElementById("findNearestButton").onclick = function(){
+        var nearestLoc = findNearest(loc, cLat, cLng);
+        if(nearestLoc != null){
+            route.setWaypoints([{lat: cLat, lng: cLng}, {lat: nearestLoc.latitude, lng: nearestLoc.longitude}]);
+            map.setView([nearestLoc.latitude, nearestLoc.longitude], 17);
+        }
+    }
 
     socket.on('waste change', async function(msg){
         var locI = loc.findIndex(e => JSON.stringify(e._id) === JSON.stringify(msg.id._id));

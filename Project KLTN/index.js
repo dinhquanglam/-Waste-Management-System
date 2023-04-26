@@ -26,6 +26,8 @@ var accountController = require('./controllers/accountController');
 var carController = require('./controllers/carController');
 var wasteController = require('./controllers/wasteController');
 var iSimulate = 0;
+var Population = require('./Genetic Algorithm/Population');
+
 
 app.use(bodyparser.urlencoded({extended: false}));
 app.use(bodyparser.json());
@@ -95,6 +97,22 @@ app.set("view engine", "hbs");
 
 server.listen(3000, async () =>{
     console.log("Server started at port 3000");
+    // var locs = await wasteController.getAll();
+    // var trucks = await mongoose.model('Car').find();
+    // var area = await mongoose.model('Area').find();
+    // var depot = {
+    //     latitude: area[0].location[0],
+    //     longitude: area[0].location[1]
+    // }
+    // var penRecs = await mongoose.model('Penalty_record').find();
+    // var pop = new Population(locs, trucks, depot, 10, 50, penRecs);
+    // var bestGene = await pop.generatePopulation();
+    // //console.log(bestGene[1].route);
+    // var routeTruck = bestGene[1].getRouteForEachTruck();
+    // for(var i = 0; i < routeTruck.length; i++){
+    //     console.log("Truck "+i+": ");
+    //     console.log(routeTruck[i]);
+    // }
     var dateTimer = setInterval(() => {
         iSimulate++;
         if(iSimulate == 7){
@@ -111,8 +129,49 @@ server.listen(3000, async () =>{
 
 const wasteStream = mongoose.model('Waste').watch([]);
 const carStream = mongoose.model('Car').watch([]);
+var messQueue = [];
+var ableProcess = 0;
+
+async function fullnessChangeProcessing(waste){
+    var car = await carController.getByAreaId(waste.area_id);
+    var checkUpdateFullness = await carController.findAndUpdateBinFullness(waste, car);
+    if(checkUpdateFullness == 0){
+        if(waste.fullness >= 70){
+            await carController.addNewBinToExistedRoute(waste, car);
+        }
+    }
+    else if(checkUpdateFullness == -1){
+        if(waste.fullness >= 70){
+            var list = await wasteController.checkForRouting(waste.area_id);
+            if(list.length != 0){
+                var area = await areaController.getById(waste.area_id);
+                var depot = {
+                    latitude: area.location[0],
+                    longitude: area.location[1]
+                };
+                var penRecs = await mongoose.model('Penalty_record').find();
+                var pop = new Population(list, car, depot, 10, 20, penRecs);
+                var bestGene = await pop.generatePopulation();
+                var routeTrucks = bestGene[1].getRouteForEachTruck();
+                // console.log(waste.name);
+                // for(var i = 0; i < routeTrucks.length; i++){
+                //     console.log("Truck "+i+": ");
+                //     for(var j = 0; j < routeTrucks[i].length; j++){
+                //         console.log(routeTrucks[i][j].name);
+                //     }
+                // }
+                for(var i = 0; i < routeTrucks.length; i++){
+                    if(routeTrucks[i].length > 2){
+                        await carController.updateRoute(car[i]._id, routeTrucks[i]);
+                    }
+                }
+            }
+        }
+    }
+}
+
 wasteStream.on('change', async (next) =>{
-    var waste = await mongoose.model('Waste').findById(next.documentKey._id);
+    //var waste = await mongoose.model('Waste').findById(next.documentKey._id);
     /*console.log(next.documentKey);
     console.log(waste.name);
     console.log(next.updateDescription.updatedFields);*/
@@ -126,46 +185,65 @@ wasteStream.on('change', async (next) =>{
 
     if(dataUpdated.fullness != null){
         var waste = await mongoose.model('Waste').findById(next.documentKey._id);
-        var list = await wasteController.getByAreaId(waste.area_id);
         var car = await carController.getByAreaId(waste.area_id);
-        var area = await areaController.getById(waste.area_id);
-        var path = car[0].routing;
-        var index = path.findIndex(e => JSON.stringify(e._id) === JSON.stringify(waste._id));
-        var start = car[0].position;
-        var dest = {
-            latitude: area.location[0],
-            longitude: area.location[1]
-        };
-        var penRec = await mongoose.model('Penalty_record').find();
-        path.splice(0, 1, start);
-        if(index != -1){
-            if(waste.fullness == 0){
-                path.splice(index, 1);
-            }
-            else{
-                path[index].fullness = waste.fullness;
-            }
-            await carController.updateRoute(car[0]._id, path);
-        }
-        else{
-            /*if(waste.fullness >= 70){
-                path = [start];
-                if(algorithm.checkForRouting(list, path)){
-                    path = await algorithm.routing(path);
-                    path.push(dest);
-                    await carController.updateRoute(car[0]._id, path);
+        var checkUpdateFullness = await carController.findAndUpdateBinFullness(waste, car);
+        if(checkUpdateFullness != 1){
+            ableProcess++;
+            setTimeout(async () =>{
+                ableProcess--;
+                if(ableProcess == 0){
+                    await fullnessChangeProcessing(waste);
+                    while(messQueue.length > 0){
+                        await fullnessChangeProcessing(messQueue[0]);
+                        messQueue.splice(0,1);
+                    }
+                    
                 }
-            }*/
-            if(waste.fullness >= 70){
-                path = [start];
-                if(algorithm2.checkForRouting(list, path)){
-                    path = await algorithm2.routing(path, penRec);
-                    path.push(dest);
-                    console.log(path);
-                    await carController.updateRoute(car[0]._id, path);
+                else{
+                    messQueue.push(waste);
                 }
-            }
+            }, 5000);    
         }
+        
+        
+    
+        // var path = car[0].routing;
+        // var index = path.findIndex(e => JSON.stringify(e._id) === JSON.stringify(waste._id));
+        // var start = car[0].position;
+        // var dest = {
+        //     latitude: area.location[0],
+        //     longitude: area.location[1]
+        // };
+        // var penRec = await mongoose.model('Penalty_record').find();
+        // path.splice(0, 1, start);
+        // if(index != -1){
+        //     if(waste.fullness == 0){
+        //         path.splice(index, 1);
+        //     }
+        //     else{
+        //         path[index].fullness = waste.fullness;
+        //     }
+        //     await carController.updateRoute(car[0]._id, path);
+        // }
+        // else{
+        //     /*if(waste.fullness >= 70){
+        //         path = [start];
+        //         if(algorithm.checkForRouting(list, path)){
+        //             path = await algorithm.routing(path);
+        //             path.push(dest);
+        //             await carController.updateRoute(car[0]._id, path);
+        //         }
+        //     }*/
+        //     if(waste.fullness >= 70){
+        //         path = [start];
+        //         if(algorithm2.checkForRouting(list, path)){
+        //             path = await algorithm2.routing(path, penRec);
+        //             path.push(dest);
+        //             console.log(path);
+        //             await carController.updateRoute(car[0]._id, path);
+        //         }
+        //     }
+        // }
         
         //changed for simulating
         if(dataUpdated.fullness >= 90){
@@ -189,6 +267,9 @@ wasteStream.on('change', async (next) =>{
                 await mongoose.model('Penalty_record').deleteOne(record);
                 await wasteController.updatePenaltyTime(key._id, record.time, iSimulate);
             }
+            else{
+                await wasteController.updatePenaltyTime(key._id, null, iSimulate);
+            }
         }
     }
     
@@ -198,7 +279,6 @@ wasteStream.on('change', async (next) =>{
 carStream.on('change', async (next) =>{
     if(next.updateDescription.updatedFields.routing != null){
         var route = next.updateDescription.updatedFields.routing;
-        route.splice(0, 1);
         var dataChange = {
             id: next.documentKey._id,
             route: route 

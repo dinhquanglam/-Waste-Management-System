@@ -9,32 +9,128 @@
     height: 100%;
     position: relative;
     z-index: 1;
+    transition: right 1s;
+}
+#cars{
+    border-radius: 15px;
+    display: flex;
+    position: absolute;
+    top: 15px;
+    left: 100px;
+    z-index: 2;
+    cursor: pointer;
+    background-color: #ffffff;
+    box-shadow: 5px 5px 20px #888888;
+}
+#cars > i{
+    padding-left: 10px;
+    font-size: 1.5em;
+    padding-top: 3px;
+    padding-bottom: 3px;
+}
+#cars span{
+    font-weight: 600;
+    padding-left: 10px;
+    padding-top: 3px;
+    padding-bottom: 3px;
+    padding-right: 10px;
+}
+#cars:hover{
+    background-color: #e6e6e6;
+}
+#listCarsContainer{
+    top: 45px;
+    left: 110px;
+    width: 200px;
+    position: absolute;
+    display: flex;
+    z-index: 2;
+    opacity: 0;
+    transition: opacity 0.5s,;
+}
+#listCars{
+    width: 100%;
+    font-size: 18px;
+    padding-left: 0px;
+    background-color: #d9d9d9;
+}
+#listCars li{
+    line-height: 30px;
+    padding-left: 10px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid #bfbfbf;
+    display: flex;
+    justify-content: space-between;
+}
+#listCars li:hover{
+    box-shadow: 5px 5px 20px #888888;
 }
 #infor {
     margin-left: 0px;
-    width: 250px;
-    display: none;
+    width: 400px;
     z-index: 2;
     background-color: #eeeeee;
     position: absolute;
-    border-radius: 10px;
-    right: 10px;
-    top: 10px;
-    opacity: 0.7;
+    right: -400px;
+    height: 100%;
+    opacity: 0;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    transition: opacity 0.5s, right 1s;
+    letter-spacing: .1rem;
+}
+[data-tab-content]{
+    display: none;
+}
+.active[data-tab-content]{
+    display: block;
+}
+.tabs{
+    display: flex;
+    justify-content: space-around;
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    border-bottom: 1px solid #5c8a8a;
+}
+.tab{
+    cursor: pointer;
+    padding: 15px;
+    color: #5c8a8a;
+}
+.tab:hover{
+    color: black;
+    background-color: #d1e0e0;
+}
+.tab.active{
+    color: #00b300;
+    font-weight: 600;
+    border-bottom: 2px solid #00b300;
 }
 h2{
     color: #00b300;
     font-weight: 700;
     text-align: center;
-    padding: 20px 0 20px 0;
+    padding: 20px;
     border-bottom: 1px solid silver;
+    margin-bottom: 0px;
+}
+.icon > i{
+    color: #00b300;
+    font-size: 1.5em;
+    margin: 0;
+    padding: 0;
+    cursor: pointer;
+}
+.icon{
+    margin-right: 30px;
 }
 .field{
-    font-size: 20px;
+    font-size: 18px;
     padding-left: 20px;
     padding-top: 5px;
     margin: 10px 0;
+    line-height: 30px;
     position: relative;
     margin-bottom: 20px;
 }
@@ -42,13 +138,55 @@ h2{
     position: fixed;
     height: 30px;
 }
-
+#listChart{
+    list-style-type: none;
+    line-height: 30px;
+    margin-top: 10px;
+    font-size: 18px;
+    position: relative;
+    padding-left: 0;
+}
+#listChart li{
+    padding-left: 20px;
+    border-bottom: 1px solid silver;
+    padding-bottom: 10px;
+    padding-top: 25px;
+    display: flex;
+    justify-content: space-between;
+    cursor: pointer;
+}
+#statistic{
+    overflow-y: auto;
+    height: 560px;
+}
+#listChart li:hover{
+    font-weight: 600;
+    background-color: #d1e0e0;
+}
+#expand{
+    color: black;
+    padding-right: 10px;
+}
+#penTime{
+    width: 100%;
+    padding: 0;
+    margin: 0;
+    height: 200px;
+    margin-top: 5px;
+}
+#density{
+    width: 100%;
+    padding: 0;
+    margin: 0;
+    height: 200px;
+    margin-top: 5px;
+}
 :root{
 	--transition-effect:0.25s cubic-bezier(.25,-0.78,.78,1.67) ;
 }
 #open-close {
     height: 30px;
-	margin-left: 80px;
+	margin-left: 60px;
     z-index: 5;
     position: relative;
     display: flex;
@@ -87,6 +225,7 @@ h2{
     width: 30px;
     height: 30px;
     margin: 0 auto;
+    margin-left: 60px;
     position: absolute;
     border: 5px solid gray;
     border-bottom-color: #FF3D00;
@@ -104,11 +243,4 @@ h2{
 100% {
     transform: rotate(360deg);
 }
-} 
-.loader_container{
-    height: 30px;
-    width: 100%;
-    margin-top: 10px;
-    margin-left: -20px;
-    text-align: center;
 }

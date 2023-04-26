@@ -220,6 +220,7 @@ $(document).ready(async function(){
         if(msg.data.id === car){
             console.log("Path change");
             path = msg.data.route;
+            path.splice(0, 1);
             map.eachLayer(function(layer){
                 if(layer._latlng != null){
                     map.removeLayer(layer);

@@ -1,0 +1,295 @@
+::-webkit-scrollbar {
+    width: 10px;
+}
+::-webkit-scrollbar-track {
+    background: #f1f1f1; 
+}
+::-webkit-scrollbar-thumb {
+    background: #888; 
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #555; 
+}
+.contain{
+    height: 100%;
+    background-color: #0d0d0d;
+    margin-left: 50px;
+    position: relative;
+    color: #ffffff;
+    overflow-y: auto;
+}
+.binStat{
+    width: 95%;
+    height: 700px;
+    background-color: #1a1a1a;
+    border-radius: 15px;
+    box-shadow: 5px 5px 20px #333333;
+    position: absolute;
+    left: 50px;
+    top: 100px;
+    display: flex;
+    justify-content:baseline;
+}
+.carStat{
+    width: 95%;
+    height: 700px;
+    background-color: #1a1a1a;
+    border-radius: 15px;
+    box-shadow: 5px 5px 20px #333333;
+    position: absolute;
+    left: 50px;
+    top: 900px;
+    display: flex;
+    justify-content:baseline;
+}
+.footer{
+    height: 100px;
+    position: absolute;
+    width: 100%;
+    top: 1610px;
+    background-color: #0d0d0d;
+}
+.listContain{
+    border-radius: 15px;
+    height: 95%;
+    width: 400px;
+    margin-top: 10px;
+    margin-left: 50px;
+    background-color: #262626;
+    position: relative;
+}
+.listTitle{
+    width: 100%;
+    text-align: center;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    letter-spacing: .1rem;
+    font-weight: 700;
+    font-size: 24px;
+    text-shadow: 3px 3px 3px #0d0d0d;
+    text-transform: uppercase;
+    padding-top: 20px;
+}
+.listContent{
+    width: 80%;
+    height: 70%;
+    margin-top: 20px;
+    margin-left: auto;
+    margin-right: auto;
+    border-radius: 15px;
+    box-shadow: 5px 5px 20px #333333;
+    overflow: hidden;
+}
+#listBins{
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    font-size: 18px;
+    overflow-y: auto;
+}
+#listBins li{
+    line-height: 30px;
+    text-align: center;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    cursor: pointer;
+    color: #33cc33;
+}
+#listBins li:hover{
+    background-color: #404040;
+    font-weight: 600;
+}
+#listCars{
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    font-size: 18px;
+    overflow-y: auto;
+}
+#listCars li{
+    line-height: 30px;
+    text-align: center;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    cursor: pointer;
+    color: #33cc33;
+}
+#listCars li:hover{
+    background-color: #404040;
+    font-weight: 600;
+}
+.content{
+    position: relative;
+    padding-left: 100px;
+    width: 60%;
+}
+.contentTitle{
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    letter-spacing: .1rem;
+    font-weight: 700;
+    font-size: 24px;
+    text-shadow: 3px 3px 3px #0d0d0d;
+    padding-top: 20px;
+}
+.tab{
+    display: flex;
+    justify-content: space-between;
+    width: 50%;
+}
+.timeBar{
+    margin-left: 30px;
+    margin-top: 5px;
+    width: 150px;
+}
+.times{
+    font-size: 18px;
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    width: 100%;
+    display: flex;
+    justify-content: space-around;
+}
+.times li{
+    text-align: center;
+    cursor: pointer;
+}
+.tabDay.active{
+    border-bottom: 2px solid #0066ff;
+    color: #0066ff;
+}
+.tabDay:hover{
+    color: #66a3ff;
+    font-weight: 600;
+}
+.overAllChart{
+    margin-left: 30px;
+    margin-top: 5px;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+}
+#contentPt{
+    width: 50%;
+}
+#contentDens{
+    width: 50%;
+}
+.modeBar{
+    margin-left: 30px;
+    margin-top: 5px;
+    width: 250px;
+}
+.modes{
+    font-size: 18px;
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    width: 100%;
+    display: flex;
+    justify-content: space-around;
+}
+[bin-chart-content]{
+    display: none;
+}
+.active[bin-chart-content]{
+    display: block;
+}
+[car-chart-content]{
+    display: none;
+}
+.active[car-chart-content]{
+    display: block;
+}
+.modes li{
+    text-align: center;
+    cursor: pointer;
+}
+.tabMode.active{
+    border-bottom: 2px solid #0066ff;
+    color: #0066ff;
+}
+.tabMode:hover{
+    color: #66a3ff;
+    font-weight: 600;
+}
+[data-tab-content]{
+    display: none;
+}
+.active[data-tab-content]{
+    display: block;
+}
+#overallBin{
+    width: 100%;
+    text-align: center;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    letter-spacing: .1rem;
+    font-weight: 700;
+    font-size: 18px;
+    text-shadow: 2px 2px 2px #0d0d0d;
+    padding-top: 15px;
+    cursor: pointer;
+}
+#overallCar{
+    width: 100%;
+    text-align: center;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    letter-spacing: .1rem;
+    font-weight: 700;
+    font-size: 18px;
+    text-shadow: 2px 2px 2px #0d0d0d;
+    padding-top: 15px;
+    cursor: pointer;
+}
+#contentBinPt{
+    margin-top: 20px;
+    background-color: #ffffff;
+}
+#contentBinDens{
+    margin-top: 20px;
+    background-color: #ffffff;
+}
+#contentDist{
+    width: 50%;
+    margin-left: auto;
+    margin-right: auto;
+}
+#contentCarDist{
+    margin-top: 20px;
+}
+#distBarChart{
+    margin-top: 40px;
+    background-color: #ffffff;
+}
+.total{
+    width: 100%;
+    text-align: center;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    letter-spacing: .1rem;
+    font-weight: 700;
+    font-size: 18px;
+    text-shadow: 2px 2px 2px #0d0d0d;
+    padding-top: 15px;
+    cursor: pointer;
+}
+#warning{
+    width: 100%;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    letter-spacing: .1rem;
+    font-weight: 700;
+    font-size: 24px;
+    text-shadow: 3px 3px 3px #0d0d0d;
+    padding-top: 20px;
+    padding-left: 60px;
+}
+#detail{
+    width: 100%;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    letter-spacing: .1rem;
+    font-size: 18px;
+    padding-top: 20px;
+    padding-left: 60px;
+}

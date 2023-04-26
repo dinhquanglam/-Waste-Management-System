@@ -27,6 +27,10 @@ var wasteSchema = new mongoose.Schema({
     penalty_time: {
         type: Array,
         default: []
+    },
+    process:{
+        type: String,
+        default: "none"
     }
 }, { versionKey: false });
 

@@ -27,10 +27,12 @@ var carTracking = {
                         await carController.updateOpdist(car._id, distance, sDay);
                         if(path.length > 2){
                             await wasteController.updateDensity(path[1]._id, path[1].fullness*660/100, sDay);
+                            await carController.updateCurrentCapacity(car.collector_id, path[1].fullness*660/100);
                             await wasteController.updateFullness(path[1]._id, 0);
                         }
                         else if(path.length == 2){
                             await carController.updateRoute(car._id, []);
+                            await carController.updateCurrentCapacity(car.collector_id, -1);
                         }
                     }, time*1000);
                 }

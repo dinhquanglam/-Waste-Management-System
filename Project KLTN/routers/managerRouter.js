@@ -13,7 +13,7 @@ router.get('/', async (req, res) =>{
         var path = [];
         cars.forEach(function(car){
             var route_car = {
-                id: JSON.stringify(car._id),
+                id: car._id,
                 route: car.routing
             }
             path.push(route_car);
@@ -23,7 +23,8 @@ router.get('/', async (req, res) =>{
             style: "homeM.css",
             accType: "manager",
             list: encodeURIComponent(JSON.stringify(listBin)),
-            path: encodeURIComponent(JSON.stringify(path))
+            path: encodeURIComponent(JSON.stringify(path)),
+            cars: encodeURIComponent(JSON.stringify(cars))
         });
     }
     else{
@@ -48,31 +49,17 @@ router.get('/info', async (req, res) =>{
     }
 });
 
-router.get('/listBin', async (req, res) =>{
-    if(req.session.userid && req.session.acctype == 2){
-        var managerAcc = await accountController.getById(req.session.userid);
-        var listBin = await wasteController.getByAreaId(managerAcc.area_id);
-        res.render('main_views/listBinM', {
-            script: "listBinM.js",
-            style: "listBinM.css",
-            accType: "manager",
-            list: encodeURIComponent(JSON.stringify(listBin))
-        });
-    }
-    else{
-        res.redirect("http://localhost:3000");
-    }
-});
-
-router.get('/listCar', async (req, res) =>{
+router.get('/statistic', async (req, res) => {
     if(req.session.userid && req.session.acctype == 2){
         var managerAcc = await accountController.getById(req.session.userid);
         var cars = await carController.getByAreaId(managerAcc.area_id);
-        res.render('main_views/listCarM', {
-            script: "listCarM.js",
-            style: "listCarM.css",
+        var bins = await wasteController.getByAreaId(managerAcc.area_id);
+        res.render('main_views/statM', {
+            script: "statM.js",
+            style: "statM.css",
             accType: "manager",
-            list: encodeURIComponent(JSON.stringify(cars))
+            cars: encodeURIComponent(JSON.stringify(cars)),
+            bins: encodeURIComponent(JSON.stringify(bins))
         });
     }
     else{

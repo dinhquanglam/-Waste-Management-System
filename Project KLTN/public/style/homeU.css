@@ -38,3 +38,18 @@ h2{
     position: relative;
     margin-bottom: 20px;
 }
+#findNearest{
+    position: absolute;
+    top: 15px;
+    left: 50px;
+    z-index: 2;
+    cursor: pointer;
+    background-color: #ffffff;
+    box-shadow: 5px 5px 20px #888888;
+}
+#findNearest > i{
+    font-size: 2.5em;
+}
+#findNearest > i:hover{
+    color: #00b300;
+}

@@ -6,7 +6,7 @@ var carSchema = new mongoose.Schema({
         default: "Undefined"
     },
     capacity: Number,
-    powConsump: Number,
+    currentCapacity: Number,
     routing: {
         type: Array,
         default: []

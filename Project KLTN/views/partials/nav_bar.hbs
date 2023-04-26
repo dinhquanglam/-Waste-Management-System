@@ -2,10 +2,19 @@
     <a href="http://localhost:3000/{{accType}}" class="menu__item" data-tooltip="Map">
         <i class="material-icons">map</i>
     </a>
-    <a href="http://localhost:3000/{{accType}}/info" class="menu__item" data-tooltip="Information">
+    <a href="http://localhost:3000/{{accType}}/info" class="menu__item" data-tooltip="Information" id="info">
         <i class="material-icons">info</i>
     </a>
-    <a href="http://localhost:3000/account/logout" class="menu__item" data-tooltip="Logout">
+    <a href="http://localhost:3000/{{accType}}/statistic" class="menu__item" data-tooltip="Statistic" id="stat">
+        <i class="material-icons">equalizer</i>
+    </a>
+    <a href="http://localhost:3000/account/logout" class="menu__item" data-tooltip="Logout" id="logout">
         <i class="material-icons">logout</i>
     </a>
 </nav>
+
+<script>
+    if("{{{accType}}}" !== "manager"){
+        document.getElementById("stat").style.display = "none";
+    }
+</script>

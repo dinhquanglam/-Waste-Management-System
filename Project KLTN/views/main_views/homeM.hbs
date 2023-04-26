@@ -1,26 +1,60 @@
 
 <div class="map">
+    <div id="cars">
+        <i class="material-icons">fire_truck</i><span>Trucks</span>
+    </div> 
+    <div id="listCarsContainer">
+        <ul id="listCars">
+            <li><span style="padding-left: 5px;">All</span></li>
+        </ul>
+    </div>
     <div id="infor">
+        <img src="https://lsxlawfirm.com/wp-content/uploads/2022/09/General-regulatations-on-environmental-protection-in-Vietnam.jpg" width="100%" height="200px">
         <h2 id="name"></h2>
         <input type="hidden" name="name" id="nameInput" />
         <input type="hidden" name="id" id="idInput" />
         <input type="hidden" name="state" id="stateInput" />
         <input type="hidden" name="cap" id="capInput" />
-        <br>
-        <div class="field">
-            <span>Capacity: <span id="cap"></span>%<br/>
-        </div>
-        <div class="field">
-            <div class="state_field">
-                <span>State: </span><!--<span id="state"></span>-->
+        <ul class="tabs">
+            <li data-tab-target="#general" class="active tab">General</li>
+            <li data-tab-target="#statistic" class="tab">Statistic</li>
+        </ul>
+        <div class="tab-content">
+            <br/>
+            <div id="general" data-tab-content class="active">
+                <div class="field">
+                    <span class="icon"><i class="material-icons" title="Location">location_on</i></span><span id="location"></span><br/>
+                </div>
+                <div class="field">
+                    <span class="icon"><i class="material-icons" title="Capacity">delete</i></span><span id="cap"></span><br/>
+                </div>
+                <div class="field">
+                    <span class="icon"><i class="material-icons" title="Fullness">delete_outline</i></span><span id="fullness"></span>%<br/>
+                </div>
+                <div class="field">
+                    <div class="state_field">
+                        <span class="icon"><i class="material-icons" title="State">lock_open</i></span>
+                    </div>
+                    <div id="open-close">
+                        <input type="checkbox" name="state" class="switch-toggle" id="on-off" >
+                        <span id="loader"></span>
+                    </div>
+                </div>
             </div>
-            <div id="open-close">
-                <input type="checkbox" name="state" class="switch-toggle" id="on-off" >
-            </div> 
-            <div class="loader_container">
-                <span id="loader"></span>
+            <div id="statistic" data-tab-content>
+                <ul id="listChart">
+                    <li><span>Penalty Time</span> <i class="material-icons" id="expand">expand_more</i></li>
+                    <div id="penTime">
+                        <canvas id="ptChart" style="width:100%;"></canvas>
+                    </div>
+                    <li><span>Density</span> <i class="material-icons" id="expand">expand_more</i></li>
+                    <div id="density">
+                        <canvas id="densityChart" style="width:100%;"></canvas>
+                    </div>
+                </ul>
             </div>
         </div>
+        
     </div>
     <div id="map"></div> 
 </div>
@@ -32,5 +66,31 @@
     console.log(loc);
     var paths = decodeURIComponent("{{{path}}}");
     paths = JSON.parse(paths);
+    var cars = decodeURIComponent("{{{cars}}}");
+    cars = JSON.parse(cars);
+    const tabs = document.querySelectorAll('[data-tab-target]');
+    const tabContents = document.querySelectorAll('[data-tab-content]');
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            const target = document.querySelector(tab.dataset.tabTarget);
+            tabContents.forEach(tabContent => {
+                tabContent.classList.remove('active');
+            });
+            tabs.forEach(tab => {
+                tab.classList.remove('active');
+            });
+            tab.classList.add('active');
+            target.classList.add('active');
+        });
+    });
     
+    document.getElementById("cars").onclick = function(e){
+        const list = document.getElementById("listCarsContainer");
+        if(list.style.opacity == 0){
+            list.style.opacity = 1;
+        }
+        else{
+            list.style.opacity = 0;
+        }
+    };
 </script>

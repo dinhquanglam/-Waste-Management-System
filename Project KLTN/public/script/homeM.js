@@ -1,3 +1,73 @@
+function createPenTimeChart(arr){
+    var xVal = [];
+    var yVal = [];
+    var colors = [];
+    arr.forEach(e => {
+        xVal.push(e.date);
+        yVal.push((e.time/60).toFixed(2));
+        if(e.time > 10){
+            colors.push("red");
+        }
+        else if(e.time >= 5 && e.time <= 10){
+            colors.push("yellow");
+        }
+        else{
+            colors.push("green");
+        }
+    });
+    yVal.push(0);
+    var chart = {
+        type: "bar",
+        data: {
+          labels: xVal,
+          datasets: [{
+            backgroundColor: colors,
+            data: yVal
+          }]
+        },
+        options: {
+          legend: {display: false},
+          title: {display: false}
+        }
+    };
+    return chart;
+}
+
+function createDensityChart(arr){
+    var xVal = [];
+    var yVal = [];
+    var colors = [];
+    arr.forEach(e => {
+        xVal.push(e.date);
+        yVal.push(e.weight.toFixed(2));
+        if(e.weight > 10){
+            colors.push("red");
+        }
+        else if(e.weight >= 5 && e.weight <= 10){
+            colors.push("yellow");
+        }
+        else{
+            colors.push("green");
+        }
+    });
+    yVal.push(0);
+    var chart = {
+        type: "bar",
+        data: {
+          labels: xVal,
+          datasets: [{
+            backgroundColor: colors,
+            data: yVal
+          }]
+        },
+        options: {
+          legend: {display: false},
+          title: {display: false}
+        }
+    };
+    return chart;
+}
+
 function creatMarker(loc){
     var markerIcon = null;
     if(loc.fullness != null){
@@ -18,9 +88,14 @@ function creatMarker(loc){
     else{
         marker = L.marker([loc.latitude, loc.longitude], {icon: markerIcon}).on("click", function(e){
             const infor = document.getElementById("infor");
-            infor.style.display = "block";
+            const map = document.getElementById("map");
+            infor.style.opacity = 1;
+            infor.style.right = 0;
+            map.style.right = "400px";
+            document.getElementById("location").innerHTML = loc.latitude + "," + loc.longitude;
             document.getElementById("name").innerHTML = loc.name;
-            document.getElementById("cap").innerHTML = loc.fullness.toFixed(2);
+            document.getElementById("fullness").innerHTML = loc.fullness.toFixed(2);
+            document.getElementById("cap").innerHTML = loc.capacity;
             document.getElementById("nameInput").value = loc.name;
             document.getElementById("stateInput").value = loc.state;
             document.getElementById("capInput").value = loc.fullness;
@@ -31,6 +106,22 @@ function creatMarker(loc){
             else{
                 document.getElementById('on-off').checked = true;
             }
+            this.bindPopup(loc.name);
+            setTimeout(() => {
+                this.openPopup();
+            }, 100);
+            document.getElementById("ptChart").remove();
+            var canvas1 = document.createElement('canvas');
+            canvas1.setAttribute("id", "ptChart");
+            canvas1.setAttribute("style", "width:100%;");
+            document.getElementById("penTime").append(canvas1);
+            new Chart("ptChart", createPenTimeChart(loc.penalty_time));
+            document.getElementById("densityChart").remove();
+            var canvas2 = document.createElement('canvas');
+            canvas2.setAttribute("id", "densityChart");
+            canvas2.setAttribute("style", "width:100%;");
+            document.getElementById("density").append(canvas2);
+            new Chart("densityChart", createDensityChart(loc.density));
         });
     }
     
@@ -101,28 +192,97 @@ $(document).ready(async function(){
     var socket = io();
     var map = L.map("map").setView([loc[0].latitude, loc[0].longitude], 17);
     map.on("click", () =>{
-        if(document.getElementById("infor").style.display === "block"){
-            document.getElementById("infor").style.display = "none"
+        document.getElementById("listCarsContainer").style.opacity = 0;
+        if(document.getElementById("infor").style.opacity == 1){
+            document.getElementById("infor").style.opacity = 0;
+            document.getElementById("infor").style.right = "-400px";
+            document.getElementById("map").style.right = 0;
         }
     });
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
         attribution: '© OpenStreetMap'
     }).addTo(map);
+    var routesControl = [];
+    var colors = ["#0000ff", "#993300", "#ff3300", "#990099"];
+    var listCar = document.getElementById("listCars");
+    for(var i = 0; i < cars.length; i++){
+        const li = document.createElement("li");
+        li.setAttribute("id", cars[i]._id.toString());
+        const div = document.createElement("div");
+        div.setAttribute("style", "height: 100%; color: #ffffff; padding-left: 10px; padding-right: 10px; background-color: "+colors[i]+";");
+        const textDiv = document.createTextNode(cars[i].name);
+        div.appendChild(textDiv);
+        const span = document.createElement("span");
+        span.setAttribute("id", "state"+cars[i]._id.toString());
+        span.setAttribute("style", "padding-right: 15px");
+        var carState = "";
+        if(cars[i].routing.length == 0){
+            carState = "Idle";
+        }
+        else{
+            carState = "On route";
+        }
+        const textSpan = document.createTextNode(carState);
+        span.appendChild(textSpan);
+        li.appendChild(div);
+        li.appendChild(span);
+        li.onclick = function(){
+            var id = this.getAttribute("id");
+            routesControl.forEach(function(route){
+                map.removeControl(route);
+            });
+            routesControl = [];
+            map.eachLayer(function(layer){
+                if(layer._latlng != null){
+                    map.removeLayer(layer);
+                }
+            });
+            for(var j = 0; j < paths.length; j++){
+                
+                if(id === paths[j].id.toString()){
+                    var route = L.Routing.control({
+                        show: false,
+                        draggableWaypoints: false,
+                        lineOptions: {
+                            styles: [{color: colors[j], opacity: 1, weight: 2}]
+                        },          
+                        createMarker: function(i, start, n){
+                            var marker = creatMarker(path[i]);
+                            if(i == 0){
+                                marker = marker.bindPopup("Start point");
+                                setTimeout(() => {
+                                marker.openPopup();
+                                }, 5000);
+                            }
+                            return marker;
+                        },
     
+                    }).addTo(map);
+                    var path = paths[j].route;
+                    pathLatLng = convertLatLng(path);
+                    route.setWaypoints(pathLatLng);
+                    routesControl.push(route);
+                }
+            }
+            loc.forEach(function(lc){
+                creatMarker(lc).addTo(map);
+            });
+        }
+        listCar.appendChild(li);
+    }
     console.log(paths);
 
     // initial marker and route
-    var routesControl = [];
-    paths.forEach(function(routes){
-        var path = routes.route;
+    for(var j = 0; j < paths.length; j++){
+        var path = paths[j].route;
         pathLatLng = convertLatLng(path);
         console.log(path);
         var route = L.Routing.control({
             show: false,
             draggableWaypoints: false,
             lineOptions: {
-                styles: [{color: 'blue', opacity: 1, weight: 1}]
+                styles: [{color: colors[j], opacity: 1, weight: 2}]
             },          
             createMarker: function(i, start, n){
                 var marker = creatMarker(path[i]);
@@ -138,8 +298,7 @@ $(document).ready(async function(){
         }).addTo(map);
         route.setWaypoints(pathLatLng);
         routesControl.push(route);
-        console.log(route.getWaypoints());
-    });
+    }
     
     loc.forEach(function(lc){
         creatMarker(lc).addTo(map);
@@ -172,9 +331,9 @@ $(document).ready(async function(){
             loc[locI].state = msg.data.state;
         }
         
-        if(infor.style.display === "block" && document.getElementById("idInput").value === JSON.stringify(msg.id._id)){
+        if(infor.style.opacity == 1 && document.getElementById("idInput").value === JSON.stringify(msg.id._id)){
             if(msg.data.fullness != null){
-                document.getElementById("cap").innerHTML = Number(msg.data.fullness).toFixed(2);
+                document.getElementById("fullness").innerHTML = Number(msg.data.fullness).toFixed(2);
                 document.getElementById("capInput").value = Number(msg.data.fullness);
             }
             if(msg.data.state != null){
@@ -198,6 +357,12 @@ $(document).ready(async function(){
     socket.on('car change', function(msg){
         var index = paths.findIndex(e => e.id === msg.data.id);
         paths[index].route = msg.data.route;
+        if(paths[index].route.length == 0){
+            document.getElementById("state"+paths[index].id.toString()).innerHTML = "Idle";
+        }
+        else{
+            document.getElementById("state"+paths[index].id.toString()).innerHTML = "On route";
+        }
         routesControl.forEach(function(route){
             map.removeControl(route);
         });
@@ -207,15 +372,15 @@ $(document).ready(async function(){
                 map.removeLayer(layer);
             }
         });
-        paths.forEach(function(routes){
-            var path = routes.route;
+        for(var j = 0; j < paths.length; j++){
+            var path = paths[j].route;
             pathLatLng = convertLatLng(path);
             console.log(path);
             var route = L.Routing.control({
                 show: false,
                 draggableWaypoints: false,
                 lineOptions: {
-                    styles: [{color: 'blue', opacity: 1, weight: 1}]
+                    styles: [{color: colors[j], opacity: 1, weight: 2}]
                 },          
                 createMarker: function(i, start, n){
                     var marker = creatMarker(path[i]);
@@ -232,7 +397,7 @@ $(document).ready(async function(){
             routesControl.push(route);
             route.setWaypoints(pathLatLng);
             console.log(route.getWaypoints());
-        });
+        };
         
         loc.forEach(function(lc){
             creatMarker(lc).addTo(map);
